@@ -320,7 +320,7 @@ ESON.stringify = function stringify(o, options, isNestedCall) {
         ESON.REGEXP_FIND_BAD_UNICODE.lastIndex = 0;
 
         while ((match = ESON.REGEXP_FIND_BAD_UNICODE.exec(s)) !== null) {
-            substitutions.push([to4Hex(match[0].charCodeAt(0),4), match.index]);
+            substitutions.push([to4Hex(match[0].charCodeAt(0)), match.index]);
         }
 
         if (substitutions.length) {
