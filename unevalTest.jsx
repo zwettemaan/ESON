@@ -23,7 +23,7 @@ var BENCHMARK_LOOP_COUNT = 100;
 // spends an inordinate amount in garbage collection
 
 // Set this to false and the generated strings will have characters in the range \u0020-\u00ff
-// Set this to false and the generated strings will have characters in the range \u0020-BENCHMARK_MAX_HIGH_UNICODE
+// Set this to true and the generated strings will have characters in the range \u0020-BENCHMARK_MAX_HIGH_UNICODE
 var BENCHMARK_GENERATE_HIGH_UNICODE = true;
 
 var BENCHMARK_MAX_HIGH_UNICODE = 0xFEFF;
@@ -50,7 +50,7 @@ function benchmark() {
         options.ignoreHighUnicode = true;
     }
 
-    var totalTimeESONStringifylMicroseconds = 0;
+    var totalTimeESONStringifyMicroseconds = 0;
     var totalTimeJSONStringifyMicroseconds = 0;
     var totalTimeESONParseESONMicroseconds = 0;
     var totalTimeESONParseJSONMicroseconds = 0;
@@ -68,7 +68,7 @@ function benchmark() {
         
         try {
             var sESON = ESON.stringify(o, options);
-            totalTimeESONStringifylMicroseconds += $.hiresTimer;
+            totalTimeESONStringifyMicroseconds += $.hiresTimer;
         }
         catch (err) {
             ESON.message("ESON.stringify throws " + err);
@@ -149,7 +149,7 @@ function benchmark() {
     else {
         ESON.message("JSON is on average shorter than ESON by:" + (-totalLengthDifference / BENCHMARK_LOOP_COUNT));
     }
-    ESON.message("Total Time (s) ESON Stringify:        " + totalTimeESONStringifylMicroseconds/1000/1000);
+    ESON.message("Total Time (s) ESON Stringify:        " + totalTimeESONStringifyMicroseconds/1000/1000);
     ESON.message("Total Time (s) JSON Stringify:        " + totalTimeJSONStringifyMicroseconds/1000/1000);
     ESON.message("Total Time (s) ESON Parse ESON:       " + totalTimeESONParseESONMicroseconds/1000/1000);
     ESON.message("Total Time (s) ESON Parse JSON:       " + totalTimeESONParseJSONMicroseconds/1000/1000);
