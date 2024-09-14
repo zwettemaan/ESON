@@ -4,10 +4,12 @@ message("Testing a few Unicode chars. There are two 'bad' codes that we need to 
 
 // All is well from 0x0020 upwards, till we come to...
 
-tryCode(0x2027);
-tryCode(0x2028);
-tryCode(0x2029);
-tryCode(0x202A);
+//...
+tryCode(0x2027); // works fine
+tryCode(0x2028); // fails
+tryCode(0x2029); // fails
+tryCode(0x202A); // works fine
+//...
 
 //... and everything else is OK
 
