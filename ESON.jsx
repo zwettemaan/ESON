@@ -260,7 +260,7 @@ ESON.parse = function parse(s) {
     return retVal;
 }
 
-ESON.stringify = function stringify(o, options, isNestedCall) {
+ESON.stringify = function stringify(o, options, dontLookForBadUnicode) {
 
     var s;
 
@@ -276,7 +276,7 @@ ESON.stringify = function stringify(o, options, isNestedCall) {
                     s += ","
                 }
                 if (o[idx] !== undefined) {
-                    s += stringify(o[idx], options, true);
+                    s += stringify(o[idx], options);
                 }
             }
             s += "]";
@@ -295,7 +295,7 @@ ESON.stringify = function stringify(o, options, isNestedCall) {
                     if (counter > 0) {
                         s += ","
                     }
-                    s += stringify(attr, options, true) + ":" + stringify(o[attr], options, true);
+                    s += stringify(attr, options, true) + ":" + stringify(o[attr], options);
                     counter++;
                 }
             }
@@ -308,32 +308,31 @@ ESON.stringify = function stringify(o, options, isNestedCall) {
         if (s.charAt(0) == '(' && s.charAt(sLen - 1) == ')') {
             s = s.substring(1, sLen - 1);
         }
-    }
+    
+        if (! dontLookForBadUnicode && ! options.ignoreHighUnicode && "string" == typeof(o)) {
+            // Some unicode characters cause eval() to go off the rails: U+2028, U+2029
+            var match;
+            var substitutions = [];
 
-    if (! isNestedCall && ! options.ignoreHighUnicode) {
+            // Reset regexp
+            ESON.REGEXP_FIND_BAD_UNICODE.lastIndex = 0;
 
-        // Some unicode characters cause eval() to go off the rails: U+2028, U+2029
-        var match;
-        var substitutions = [];
-
-        // Reset regexp
-        ESON.REGEXP_FIND_BAD_UNICODE.lastIndex = 0;
-
-        while ((match = ESON.REGEXP_FIND_BAD_UNICODE.exec(s)) !== null) {
-            substitutions.push([to4Hex(match[0].charCodeAt(0)), match.index]);
-        }
-
-        if (substitutions.length) {
-            var sChunks = [];
-            var curPos = 0;
-            for (substIdx = 0; substIdx < substitutions.length; substIdx++) {
-                var substitution = substitutions[substIdx];
-                sChunks.push(s.substring(curPos, substitution[1]));
-                sChunks.push("\\u" + substitution[0]);
-                curPos = substitution[1] + 1;
+            while ((match = ESON.REGEXP_FIND_BAD_UNICODE.exec(s)) !== null) {
+                substitutions.push([to4Hex(match[0].charCodeAt(0)), match.index]);
             }
-            sChunks.push(s.substring(curPos));
-            s = sChunks.join("");            
+
+            if (substitutions.length) {
+                var sChunks = [];
+                var curPos = 0;
+                for (substIdx = 0; substIdx < substitutions.length; substIdx++) {
+                    var substitution = substitutions[substIdx];
+                    sChunks.push(s.substring(curPos, substitution[1]));
+                    sChunks.push("\\u" + substitution[0]);
+                    curPos = substitution[1] + 1;
+                }
+                sChunks.push(s.substring(curPos));
+                s = sChunks.join("");            
+            }
         }
     }
 

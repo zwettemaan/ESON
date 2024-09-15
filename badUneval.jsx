@@ -17,7 +17,7 @@ message("Done");
 
 function tryCode(unicode) {
     try {
-        $.writeln("Trying \\u" + unicode.toString(16));
+        message("Trying \\u" + unicode.toString(16));
         
         // s1 is a string - a letter 'a' followed by a high-unicode char followed by a letter 'b'
         // The letters I picked have no bearing on this test.
@@ -27,10 +27,10 @@ function tryCode(unicode) {
         // Round trip the string through uneval and eval
         var s2 = eval(uneval(s1));
         
-        $.writeln("Succeeded \\u" + unicode.toString(16));
+        message("Succeeded \\u" + unicode.toString(16));
     }
     catch (err) {
-        $.writeln("failed \\u" + unicode.toString(16) + ", throws " + err);
+        message("failed \\u" + unicode.toString(16) + ", throws " + err);
     }
 }
 
