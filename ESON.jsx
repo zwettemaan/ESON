@@ -6,7 +6,7 @@
 // The script also contains a testbed used for benchmarking and comparing JSON 
 // vs the uneval/eval versions. 
 //
-// Based on my benchmarks, JSON.stringify is occasionally slightly faster than ESON.stringify.
+// Based on my benchmarks, JSON.stringify is only occasionally slightly faster than ESON.stringify.
 // ESON.parse is a fair bit faster than JSON.parse. 
 // ESON.stringify also seems to produce slightly more compact JSON.
 // Finally, if you are 100% sure that the Unicode chars \u2028 and \u2029 don't appear in the
@@ -18,14 +18,14 @@
 //
 // Sample benchmark obtained from InDesign Server:
 //
-// Fri Sep 13 17:07:22 2024 INFO   [server] ESON is on average shorter than JSON by:32.45
-// Fri Sep 13 17:07:22 2024 INFO   [server] Total Time (s) ESON Stringify:        0.201588
-// Fri Sep 13 17:07:22 2024 INFO   [server] Total Time (s) JSON Stringify:        0.220061
-// Fri Sep 13 17:07:22 2024 INFO   [server] Total Time (s) ESON Parse ESON:       0.0755
-// Fri Sep 13 17:07:22 2024 INFO   [server] Total Time (s) ESON Parse JSON:       0.084029
-// Fri Sep 13 17:07:22 2024 INFO   [server] Total Time (s) JSON Parse ESON:       0.704001
-// Fri Sep 13 17:07:22 2024 INFO   [server] Total Time (s) JSON Parse JSON:       0.638591
-// Fri Sep 13 17:07:22 2024 INFO   [server] Total Time (s) In Garbage Collection: 0.016169
+// ESON is on average shorter than JSON by:655.25
+// Total Time (s) ESON Stringify:        0.769152
+// Total Time (s) JSON Stringify:        1.113911
+// Total Time (s) ESON Parse ESON:       1.08657
+// Total Time (s) ESON Parse JSON:       1.217208
+// Total Time (s) JSON Parse ESON:       5.425569
+// Total Time (s) JSON Parse JSON:       5.201757
+// Total Time (s) In Garbage Collection: 0.086987
 //
 
 if ("undefined" == typeof ESON) {

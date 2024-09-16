@@ -13,7 +13,7 @@
 // will be an object or array with 2 elements. More entries in 
 // BENCHMARK_NUM_ATTRS_BY_LEVEL result in more deeply nested constructs.
 
-var BENCHMARK_NUM_ATTRS_BY_LEVEL = [ 5, 2, 2 ];
+var BENCHMARK_NUM_ATTRS_BY_LEVEL = [ 5, 2, 2, 2 ];
 
 // Repeat the benchmark this many times
 var BENCHMARK_LOOP_COUNT = 100;
@@ -28,7 +28,7 @@ var BENCHMARK_GENERATE_HIGH_UNICODE = true;
 
 var BENCHMARK_MAX_HIGH_UNICODE = 0xFEFF;
 
-var BENCHMARK_MAX_STRING_LENGTH = 10240;
+var BENCHMARK_MAX_STRING_LENGTH = 1024 * 20;
 
 benchmark();
 
