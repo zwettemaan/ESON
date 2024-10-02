@@ -5,6 +5,7 @@
 
 //@include "json2.js"
 //@include "ESON.jsx"
+//@include "ESONTests.jsx"
 
 // When generating random objects for the benchmark, create a 
 // mix of objects and arrays, and use this many subobjects on the 
@@ -28,7 +29,7 @@ var BENCHMARK_GENERATE_HIGH_UNICODE = true;
 
 var BENCHMARK_MAX_HIGH_UNICODE = 0xFEFF;
 
-var BENCHMARK_MAX_STRING_LENGTH = 1024 * 20;
+var BENCHMARK_MAX_STRING_LENGTH = 50*1024;
 
 benchmark();
 
