@@ -26,12 +26,13 @@ ESON.REGEXP_FIND_BAD_UNICODE = /[\x00\x0A\x0D\u2028\u2029]/g;
 // Determine whether we're running on InDesign Server
 ESON.IS_INDESIGN_SERVER = "serverSettings" in app;
 
-function shallowCloneOptions(options) {
-    var retVal = {};
-    for (var attr in options) {
-        retVal[attr] = options[attr];
+ESON.message = function message(s) {
+    if (ESON.IS_INDESIGN_SERVER) {
+        alert(s);
     }
-    return retVal;
+    else {
+        $.writeln(s);
+    }
 }
 
 ESON.parse = function parse(s) {
@@ -41,14 +42,14 @@ ESON.parse = function parse(s) {
         eval("retVal = " + s);
     }
     catch (err) {
-        message("parse throws " + err);
+        ESON.message("parse throws " + err);
         retVal = undefined;
     }
 
     return retVal;
 }
 
-ESON.stringify = function stringify(o, options) {
+ESON.stringify = function stringify(o, options, isNestedCall) {
 
     var s;
 
@@ -64,7 +65,7 @@ ESON.stringify = function stringify(o, options) {
                     s += ","
                 }
                 if (o[idx] !== undefined) {
-                    s += stringify(o[idx], options);
+                    s += stringify(o[idx], options, true);
                 }
             }
             s += "]";
@@ -83,7 +84,7 @@ ESON.stringify = function stringify(o, options) {
                     if (counter > 0) {
                         s += ","
                     }
-                    s += stringify(attr, options) + ":" + stringify(o[attr], options);
+                    s += stringify(attr, options, true) + ":" + stringify(o[attr], options, true);
                     counter++;
                 }
             }
@@ -97,7 +98,7 @@ ESON.stringify = function stringify(o, options) {
             s = s.substring(1, sLen - 1);
         }
     
-        if (! options.dontLookForBadUnicode && ! options.ignoreHighUnicode && "string" == typeof(o)) {
+        if (! isNestedCall && ! options.dontLookForBadUnicode && ! options.ignoreHighUnicode && "string" == typeof(o)) {
             // Some unicode characters cause eval() to go off the rails: U+000A, U+000D, U+2028, U+2029
             var match;
             var substitutions = [];
@@ -108,10 +109,10 @@ ESON.stringify = function stringify(o, options) {
             while ((match = ESON.REGEXP_FIND_BAD_UNICODE.exec(s)) !== null) {
                 var charCode = match[0].charCodeAt(0);
                 if (charCode < 256) {
-                    var substitute = "\x" + to2Hex(charCode);
+                    var substitute = "\\x" + to2Hex(charCode);
                 }
                 else {
-                    var substitute = "\u" + to4Hex(charCode);
+                    var substitute = "\\u" + to4Hex(charCode);
                 }
                 substitutions.push([substitute, match.index]);
             }

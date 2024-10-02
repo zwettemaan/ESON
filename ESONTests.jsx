@@ -140,7 +140,7 @@ function generateString(stringLength, options) {
     }
 
     var minCharCode = options.minCharCode;
-    if (! minCharCode) {
+    if (minCharCode === undefined) {
         minCharCode = 0x20;
     }
 
@@ -163,17 +163,23 @@ ESON.isEquivalentObject = function isEquivalentObject(o1, o2) {
     if (o1 === o2) {
         return true;
     }
-    if (isNaN(o1) && isNaN(o2)) {
-        return true;
-    }
-    if (isNaN(o1) || isNaN(o2)) {
-        return false;
-    }
+
     var to1 = typeof o1;
     var to2 = typeof o2;
     if (to1 != to2) {
         return false;
     }
+
+    if ("number" == to1) {
+        if (isNaN(o1) && isNaN(o2)) {
+            return true;
+        }
+
+        if (isNaN(o1) || isNaN(o2)) {
+            return false;
+        }
+    }
+
     if ("object" == to1) {
         if (o1 instanceof Array) {
             if (! (o2 instanceof Array)) {
@@ -212,13 +218,12 @@ ESON.isEquivalentObject = function isEquivalentObject(o1, o2) {
     return false;
 }
 
-ESON.message = function message(s) {
-    if (ESON.IS_INDESIGN_SERVER) {
-        alert(s);
+function shallowCloneOptions(options) {
+    var retVal = {};
+    for (var attr in options) {
+        retVal[attr] = options[attr];
     }
-    else {
-        $.writeln(s);
-    }
+    return retVal;
 }
 
 })();
