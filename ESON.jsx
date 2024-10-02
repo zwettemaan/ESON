@@ -21,7 +21,7 @@ ESON.ENCODE_BAD_UNICODE = true;
 // We also weed out the control characters - e.g. CR and LF are also problematic
 // \x00 is not a problem, but not explicity escaping it makes for possible head-scratchers
 
-ESON.REGEXP_FIND_BAD_UNICODE = /[\x00\x0A\x0D\u2028\u2029]/g;
+ESON.REGEXP_FIND_BAD_UNICODE = /[\x00\x0a\x0d\u0600-\u0603\u06dd\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202e\u2060-\u2063\u206a-\u206f]/g;
 
 // Determine whether we're running on InDesign Server
 ESON.IS_INDESIGN_SERVER = "serverSettings" in app;
@@ -93,45 +93,42 @@ ESON.stringify = function stringify(o, options, isNestedCall) {
     }
     else {
         s = uneval(o);
-        var sLen = s.length;
-        if (s.charAt(0) == '(' && s.charAt(sLen - 1) == ')') {
-            s = s.substring(1, sLen - 1);
-        }
-    
-        if (! isNestedCall && ! options.dontLookForBadUnicode && ! options.ignoreHighUnicode && "string" == typeof(o)) {
-            // Some unicode characters cause eval() to go off the rails: U+000A, U+000D, U+2028, U+2029
-            var match;
-            var substitutions = [];
-
-            // Reset regexp
-            ESON.REGEXP_FIND_BAD_UNICODE.lastIndex = 0;
-
-            while ((match = ESON.REGEXP_FIND_BAD_UNICODE.exec(s)) !== null) {
-                var charCode = match[0].charCodeAt(0);
-                if (charCode < 256) {
-                    var substitute = "\\x" + to2Hex(charCode);
-                }
-                else {
-                    var substitute = "\\u" + to4Hex(charCode);
-                }
-                substitutions.push([substitute, match.index]);
-            }
-
-            if (substitutions.length) {
-                var sChunks = [];
-                var curPos = 0;
-                for (substIdx = 0; substIdx < substitutions.length; substIdx++) {
-                    var substitution = substitutions[substIdx];
-                    sChunks.push(s.substring(curPos, substitution[1]));
-                    sChunks.push(substitution[0]);
-                    curPos = substitution[1] + 1;
-                }
-                sChunks.push(s.substring(curPos));
-                s = sChunks.join("");            
-            }
-        }
     }
 
+    if (! isNestedCall && ! options.dontLookForBadUnicode && ! options.ignoreHighUnicode) {
+
+        // Some unicode characters cause eval() to go off the rails: U+000A, U+000D, U+2028, U+2029...
+        var match;
+        var substitutions = [];
+
+        // Reset regexp
+        ESON.REGEXP_FIND_BAD_UNICODE.lastIndex = 0;
+
+        while ((match = ESON.REGEXP_FIND_BAD_UNICODE.exec(s)) !== null) {
+            var charCode = match[0].charCodeAt(0);
+            if (charCode < 256) {
+                var substitute = "\\x" + to2Hex(charCode);
+            }
+            else {
+                var substitute = "\\u" + to4Hex(charCode);
+            }
+            substitutions.push([substitute, match.index]);
+        }
+
+        if (substitutions.length) {
+            var sChunks = [];
+            var curPos = 0;
+            for (substIdx = 0; substIdx < substitutions.length; substIdx++) {
+                var substitution = substitutions[substIdx];
+                sChunks.push(s.substring(curPos, substitution[1]));
+                sChunks.push(substitution[0]);
+                curPos = substitution[1] + 1;
+            }
+            sChunks.push(s.substring(curPos));
+            s = sChunks.join("");            
+        }
+    }
+    
     return s;
 }
 

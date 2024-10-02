@@ -14,22 +14,23 @@
 // will be an object or array with 2 elements. More entries in 
 // BENCHMARK_NUM_ATTRS_BY_LEVEL result in more deeply nested constructs.
 
-var BENCHMARK_NUM_ATTRS_BY_LEVEL = [ 2 ];
+var BENCHMARK_NUM_ATTRS_BY_LEVEL = [ 5, 2, 2 ];
 
 // Repeat the benchmark this many times
-var BENCHMARK_LOOP_COUNT = 1;
-
-// When creating random strings, use up to this many characters.
-// Very high values make this script _very_ slow, probably because it 
-// spends an inordinate amount in garbage collection
+var BENCHMARK_LOOP_COUNT = 100;
 
 // Set this to false and the generated strings will have characters in the range \u0020-\u00ff
 // Set this to true and the generated strings will have characters in the range \u0020-BENCHMARK_MAX_HIGH_UNICODE
 var BENCHMARK_GENERATE_HIGH_UNICODE = true;
 
-var BENCHMARK_MAX_HIGH_UNICODE = 0xFEFF;
+// Avoid FEFF - that's a BOM mark
+var BENCHMARK_MAX_HIGH_UNICODE = 0xFEFE;
 
-var BENCHMARK_MAX_STRING_LENGTH = 5*1024;
+// When creating random strings, use up to this many characters.
+// Very high values make this script _very_ slow, probably because it 
+// spends an inordinate amount in garbage collection
+
+var BENCHMARK_MAX_STRING_LENGTH = 10 * 1024;
 
 benchmark();
 
@@ -61,8 +62,8 @@ function benchmark() {
 
     var totalLengthDifference = 0;
 
-    for (loop = 0; loop < BENCHMARK_LOOP_COUNT; loop++) {
-        
+    for (var loop = 0; loop < BENCHMARK_LOOP_COUNT; loop++) {
+
         var o = ESON.generateObject(BENCHMARK_NUM_ATTRS_BY_LEVEL, options);
 
         $.hiresTimer; // reset timer, throw away previous reading
@@ -74,8 +75,7 @@ function benchmark() {
         catch (err) {
             ESON.message("ESON.stringify throws " + err);
         }
-        
-        
+                
         try {
             var sJSON = JSON.stringify(o);
             totalTimeJSONStringifyMicroseconds += $.hiresTimer;
@@ -96,8 +96,12 @@ function benchmark() {
         catch (err) {
             ESON.message("ESON.parse of ESON.stringify throws " + err);
         }
-        
-        
+                
+        if (loop == 0 && ! ESON.isEquivalentObject(o, oESON)) {
+            ESON.message("Mismatch between ESON parsed by ESON and original");
+            //ESON.message(sESON);
+        }
+
         try {
             oJSON = JSON.parse(sJSON);
             totalTimeJSONParseJSONMicroseconds += $.hiresTimer;
@@ -106,12 +110,11 @@ function benchmark() {
             ESON.message("JSON.parse of JSON.stringify throws " + err);
         }
 
-
-        if (! ESON.isEquivalentObject(oESON, oJSON)) {
-            ESON.message("Mismatch between JSON2 and uneval-based stringify");
-            ESON.message(sJSON);
+        if (loop == 0 && ! ESON.isEquivalentObject(o, oJSON)) {
+            ESON.message("Mismatch between JSON2 parsed by JSON and original");
+            //ESON.message(sJSON);
         }
-
+    
         // Swap 'em around
 
         try {
@@ -121,13 +124,23 @@ function benchmark() {
         catch (err) {
             ESON.message("ESON.parse of JSON.stringify throws " + err);
         }
-        
+
+        if (loop == 0 && ! ESON.isEquivalentObject(o, oESON)) {
+            ESON.message("Mismatch between JSON2 parsed by ESON and original");
+            //ESON.message(sESON);
+        }
+
         try {
             oJSON = JSON.parse(sESON);
             totalTimeJSONParseESONMicroseconds += $.hiresTimer;
         }
         catch (err) {
             ESON.message("JSON.parse of ESON.stringify throws " + err);
+        }
+
+        if (loop == 0 && ! ESON.isEquivalentObject(o, oJSON)) {
+            ESON.message("Mismatch between ESON parsed by JSON2 and original");
+            //ESON.message(sJSON);
         }
 
         // We keep the time needed for garbage collection out of the benchmark
@@ -145,10 +158,10 @@ function benchmark() {
     }
 
     if (totalLengthDifference <= 0) {
-        ESON.message("ESON is on average shorter than JSON by:" + (-totalLengthDifference / BENCHMARK_LOOP_COUNT));
+        ESON.message("ESON char count is on average less than JSON by:" + (-totalLengthDifference / BENCHMARK_LOOP_COUNT));
     }
     else {
-        ESON.message("JSON is on average shorter than ESON by:" + (-totalLengthDifference / BENCHMARK_LOOP_COUNT));
+        ESON.message("JSON char count is on average less than ESON by:" + (-totalLengthDifference / BENCHMARK_LOOP_COUNT));
     }
     ESON.message("Total Time (s) ESON Stringify:        " + totalTimeESONStringifyMicroseconds/1000/1000);
     ESON.message("Total Time (s) JSON Stringify:        " + totalTimeJSONStringifyMicroseconds/1000/1000);

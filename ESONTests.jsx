@@ -82,7 +82,7 @@ function generateAtom(options) {
                defaultMaxCharCode = 255;
             }
             else {
-                defaultMaxCharCode = 0xFEFF;
+                defaultMaxCharCode = 0xFEFE;
             }
             options = shallowCloneOptions(options);
             options.maxCharCode = defaultMaxCharCode;
@@ -160,62 +160,83 @@ function generateString(stringLength, options) {
 
 ESON.isEquivalentObject = function isEquivalentObject(o1, o2) {
     
-    if (o1 === o2) {
-        return true;
-    }
-
-    var to1 = typeof o1;
-    var to2 = typeof o2;
-    if (to1 != to2) {
-        return false;
-    }
-
-    if ("number" == to1) {
-        if (isNaN(o1) && isNaN(o2)) {
-            return true;
+    var retVal = false;
+    
+    do {
+        if (o1 === o2) {
+            retVal = true;
+            break;
         }
 
-        if (isNaN(o1) || isNaN(o2)) {
-            return false;
+        var to1 = typeof o1;
+        var to2 = typeof o2;
+        if (to1 != to2) {
+            break;
         }
-    }
 
-    if ("object" == to1) {
-        if (o1 instanceof Array) {
-            if (! (o2 instanceof Array)) {
-                return false;
+        if ("number" == to1) {
+            if (isNaN(o1) && isNaN(o2)) {
+                retVal = true;
+                break;
             }
-            if (o1.length != o2.length) {
-                return false;
+
+            if (isNaN(o1) || isNaN(o2)) {
+                break;
             }
-            var idx = 0;
-            while (idx < o1.length) {
-                if (! isEquivalentObject(o1[idx], o2[idx])) {
-                    return false;
+        
+            var diff = Math.abs(o1 - o2);
+            var relativeDiff = diff/(Math.abs(o1) + Math.abs(o2));
+            if (relativeDiff < 0.00001) {
+                retVal = true;
+                break;
+            }
+        
+            break;
+                    
+        }
+
+        if ("object" == to1) {
+            
+            if (o1 instanceof Array) {
+                if (! (o2 instanceof Array)) {
+                    break;
                 }
-                idx++;
+                if (o1.length != o2.length) {
+                    break;
+                }
+                var idx = 0;
+                while (idx < o1.length) {
+                    if (! isEquivalentObject(o1[idx], o2[idx])) {
+                        break;
+                    }
+                    idx++;
+                }
+                retVal = true;
+                break;
             }
-            return true;
-        }
-        else {            
+        
             for (var attr in o1) {
                 if (! (attr in o2)) {
-                    return false;
+                    break;
                 }
             }
             for (var attr in o2) {
                 if (! (attr in o1)) {
-                    return false;
+                    break;
                 }
                 else if (! isEquivalentObject(o1[attr],o2[attr])) {
-                    return false;
+                    break;
                 }
             }
-            return true;
+        
+            retVal = true;
+            break;
         }
-    }
     
-    return false;
+    }
+    while (false);
+    
+    return retVal;
 }
 
 function shallowCloneOptions(options) {
