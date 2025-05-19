@@ -20,6 +20,7 @@ ESON.ENCODE_BAD_UNICODE = true;
 // using \u2028 and \u2029 notation. Other Unicode characters are left unencoded.
 // We also weed out the control characters - e.g. CR and LF are also problematic
 // \x00 is not a problem, but not explicity escaping it makes for possible head-scratchers
+// By testing the round-trip I found a bunch more Unicode chars that caused issues.
 
 ESON.REGEXP_FIND_BAD_UNICODE = /[\x00\x0a\x0d\u0600-\u0603\u06dd\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202e\u2060-\u2063\u206a-\u206f]/g;
 
